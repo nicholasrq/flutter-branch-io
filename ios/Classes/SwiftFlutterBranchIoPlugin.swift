@@ -60,16 +60,16 @@ public class SwiftFlutterBranchIoPlugin: FlutterPluginAppLifeCycleDelegate, Flut
 
         let lp: BranchLinkProperties = BranchLinkProperties()
         if lpChannel != nil {
-            lp.channel = lpChannel as! String
+            lp.channel = lpChannel!!
         }
         if lpFeature != nil {
-            lp.feature = lpFeature as! String
+            lp.feature = lpFeature!!
         }
         if lpCampaign != nil {
-            lp.campaign = lpCampaign as! String
+            lp.campaign = lpCampaign!!
         }
         if lpStage != nil {
-            lp.stage = lpStage as! String
+            lp.stage = lpStage!!
         }
         if lpParams != nil {
             for param in lpParams!! {
@@ -79,8 +79,8 @@ public class SwiftFlutterBranchIoPlugin: FlutterPluginAppLifeCycleDelegate, Flut
 
         buo?.getShortUrl(with: lp) { url, _ in
             self.sendUrlToSink(url: url!)
+            result(url!)
         }
-        result("Success generating Link!")
     }
 
     private func listOnGoogleSearch(call _: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -100,20 +100,20 @@ public class SwiftFlutterBranchIoPlugin: FlutterPluginAppLifeCycleDelegate, Flut
     private func setUserIdentity(call: FlutterMethodCall, result _: @escaping FlutterResult) {
         let args = call.arguments as? [String: Any?]
         let userId = args?["userId"] as! String?
-        Branch.getInstance()?.setIdentity(userId)
+        Branch.getInstance().setIdentity(userId)
     }
 
     private func clearUserIdentity(call _: FlutterMethodCall, result _: @escaping FlutterResult) {
-        Branch.getInstance()?.logout()
+        Branch.getInstance().logout()
     }
 
     private func getLatestParam(call _: FlutterMethodCall, result: @escaping FlutterResult) {
-        let latestParams = Branch.getInstance()?.getLatestReferringParams()
+        let latestParams = Branch.getInstance().getLatestReferringParams()
         result(latestParams)
     }
 
     private func getFirstParam(call _: FlutterMethodCall, result: @escaping FlutterResult) {
-        let firstParams = Branch.getInstance()?.getFirstReferringParams()
+        let firstParams = Branch.getInstance().getFirstReferringParams()
         result(firstParams)
     }
 
@@ -145,7 +145,7 @@ public class SwiftFlutterBranchIoPlugin: FlutterPluginAppLifeCycleDelegate, Flut
     override public func application(
         _ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable: Any]
     ) -> Bool {
-        Branch.getInstance()?.initSession(launchOptions: launchOptions) { params, error in
+        Branch.getInstance().initSession(launchOptions: launchOptions) { params, error in
             // do stuff with deep link data (nav to page, display content, etc)
             print(params as? [String: AnyObject] ?? {})
             if SwiftFlutterBranchIoPlugin.eventHandler?.eventSink != nil {
@@ -166,18 +166,18 @@ public class SwiftFlutterBranchIoPlugin: FlutterPluginAppLifeCycleDelegate, Flut
 
 
     override public func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-        let branchHandled = Branch.getInstance()?.application(app, open: url, options: options) ?? false
+        let branchHandled = Branch.getInstance().application(app, open: url, options: options) ?? false
         return branchHandled
     }
 
     @nonobjc override public func application(_ app: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler _: @escaping (UIBackgroundFetchResult) -> Void) {
         // handler for Push Notifications
-        Branch.getInstance()?.handlePushNotification(userInfo)
+        Branch.getInstance().handlePushNotification(userInfo)
     }
 
     public func application(_ app: UIApplication, continue userActivity: NSUserActivity, restorationHandler _: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         // handler for Universal Links
-        let handledByBranch = Branch.getInstance()?.continue(userActivity) ?? false
+        let handledByBranch = Branch.getInstance().continue(userActivity) ?? false
         return handledByBranch
     }
 }
