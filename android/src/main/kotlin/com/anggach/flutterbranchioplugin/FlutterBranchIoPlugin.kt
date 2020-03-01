@@ -49,8 +49,7 @@ class FlutterBranchIoPlugin(private var registrar: Registrar) : MethodCallHandle
                 setUpBranchIo(registrar, deepLinkStreamHandler, result)
             }
             call.method == "generateLink" -> {
-                generateLinkHandler(this.registrar, generatedLinkStreamHandler, call)
-                result.success("Generate link success")
+                generateLinkHandler(this.registrar, call, result)
             }
             call.method == "getLatestParam" -> {
                 val param = getBranchLatestParam()
@@ -61,20 +60,20 @@ class FlutterBranchIoPlugin(private var registrar: Registrar) : MethodCallHandle
                 result.success(param)
             }
             call.method == "listOnGoogleSearch" -> {
-                listOnGoogleSearch(this.registrar, call)
-                result.success("List on google search success")
+                listOnGoogleSearch(this.registrar, call);
+                result.success(true)
             }
             call.method == "trackContent" -> {
                 trackContent(this.registrar, call)
-                result.success("Track event success")
+                result.success(true)
             }
             call.method == "setUserIdentity" -> {
-                setUserID(call)
-                result.success("set User Identity success")
+                setUserID(call);
+                result.success(true);
             }
             call.method == "clearUserIdentity" -> {
                 clearUserID()
-                result.success("clear User Identity Success")
+                result.success(true)
             }
             else -> result.notImplemented()
         }

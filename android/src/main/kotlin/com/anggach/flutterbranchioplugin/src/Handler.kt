@@ -9,29 +9,17 @@ import io.branch.referral.util.BranchEvent
 import io.branch.referral.util.LinkProperties
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry
+import io.flutter.plugin.common.MethodChannel.Result
 import org.json.JSONObject
 
-private fun errorGeneratedLink(generatedLinkStreamHandler: GeneratedLinkStreamHandler?,
-                               registrar: PluginRegistry.Registrar, error: BranchError) {
-    val intent = Intent()
-    intent.putExtra("error", error.toString())
-    generatedLinkStreamHandler!!.handleIntent(registrar.context(), intent)
-}
-
-private fun sendGeneratedLink(generatedLinkStreamHandler: GeneratedLinkStreamHandler?,
-                              registrar: PluginRegistry.Registrar, link: String?) {
-    val intent = Intent()
-    if (link == null) return
-    intent.putExtra("link", link)
-    generatedLinkStreamHandler!!.handleIntent(registrar.context(), intent)
-}
-
-private fun generateLink(registrar: PluginRegistry.Registrar, generatedLinkStreamHandler: GeneratedLinkStreamHandler?,
-                         buo: BranchUniversalObject, lp: LinkProperties) {
-    buo.generateShortUrl(registrar.activeContext(), lp, {
-        link, error -> if (error == null) sendGeneratedLink(generatedLinkStreamHandler, registrar, link)
-    else errorGeneratedLink(generatedLinkStreamHandler, registrar, error)
-    })
+private fun generateLink(registrar: PluginRegistry.Registrar, buo: BranchUniversalObject, lp: LinkProperties, result: Result) {
+    buo.generateShortUrl(registrar.activeContext(), lp) { link, error ->
+        if (error == null) {
+            result.success(link)
+        } else {
+            result.error(error.errorCode.toString(), error.message, "")
+        }
+    }
 }
 
 fun getBranchLatestParam(): String {
@@ -50,8 +38,7 @@ fun getBranchFirstParam(): String {
     return ""
 }
 
-fun generateLinkHandler(registrar: PluginRegistry.Registrar, generatedLinkStreamHandler: GeneratedLinkStreamHandler?,
-                        call: MethodCall) {
+fun generateLinkHandler(registrar: PluginRegistry.Registrar, call: MethodCall, result: Result) {
     val buoJson = JSONObject(call.argument<String>("buoJson"))
     val buo = BranchUniversalObject.createInstance(buoJson)
     val lp = LinkProperties()
@@ -63,8 +50,9 @@ fun generateLinkHandler(registrar: PluginRegistry.Registrar, generatedLinkStream
     if (campaign != null) lp.campaign = campaign
     val stage = call.argument<String>("lp_stage")
     if (stage != null) lp.stage = stage
+
     call.argument<Map<String, String>>("lp_control_params")?.forEach { t, u -> lp.addControlParameter(t, u) }
-    generateLink(registrar, generatedLinkStreamHandler, buo, lp)
+    generateLink(registrar, buo, lp, result)
 }
 
 fun listOnGoogleSearch(registrar: PluginRegistry.Registrar, call: MethodCall) {

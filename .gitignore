@@ -10,3 +10,7 @@ pubspec.lock
 build/
 
 example/android/app/src/main/AndroidManifest.xml
+android/gradlew.bat
+android/gradlew
+android/gradle/wrapper/gradle-wrapper.properties
+android/gradle/wrapper/gradle-wrapper.jar
