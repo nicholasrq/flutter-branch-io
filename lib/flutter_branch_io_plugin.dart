@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -7,6 +8,11 @@ import 'package:flutter_branch_io_plugin/flutter_branch_io_plugin.dart';
 export 'package:flutter_branch_io_plugin/src/models/branch_standard_event.dart';
 export 'package:flutter_branch_io_plugin/src/models/branch_universal_object.dart';
 export 'package:flutter_branch_io_plugin/src/models/content_meta_data.dart';
+
+Map<dynamic, dynamic> optionallyParseJSON(source) {
+  if (source is Map) return source;
+  return jsonDecode(source ?? "{}");
+}
 
 class FlutterBranchIoPlugin {
   static const MethodChannel _messageChannel = const MethodChannel('flutter_branch_io/message');
@@ -81,12 +87,12 @@ class FlutterBranchIoPlugin {
 
   static Future<Map<String, dynamic>> getLatestParam() async {
     final params = await _messageChannel.invokeMethod('getLatestParam');
-    return Map<String, dynamic>.from(params);
+    return Map<String, dynamic>.from(optionallyParseJSON(params ?? {}));
   }
 
   static Future<Map<String, dynamic>> getFirstParam() async {
     final params = await _messageChannel.invokeMethod('getFirstParam');
-    return Map<String, dynamic>.from(params);
+    return Map<String, dynamic>.from(optionallyParseJSON(params ?? {}));
   }
 
   static Stream<String> listenToDeepLinkStream() {
